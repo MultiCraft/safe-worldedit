@@ -12,7 +12,7 @@ worldedit.prob_list = {}
 
 
 
-local safe_region, reset_pending = dofile(minetest.get_modpath("worldedit_commands") .. "/safe.lua")
+local safe_region = dofile(minetest.get_modpath("worldedit_commands") .. "/safe.lua")
 
 function worldedit.player_notify(name, message)
 	minetest.chat_send_player(name, "WorldEdit -!- " .. message, false)
@@ -400,8 +400,6 @@ worldedit.register_command("reset", {
 		worldedit.pos2[name] = nil
 		worldedit.marker_update(name)
 		worldedit.set_pos[name] = nil
-		--make sure the user does not try to confirm an operation after resetting pos:
-		reset_pending(name)
 		worldedit.player_notify(name, S("region reset"))
 	end,
 })
@@ -1517,46 +1515,6 @@ worldedit.register_command("load", {
 			return false
 		end
 		worldedit.player_notify(name, S("@1 nodes loaded", count))
-	end,
-})
-
-worldedit.register_command("lua", {
-	params = "<code>",
-	description = S("Executes <code> as a Lua chunk in the global namespace"),
-	privs = {worldedit=true, server=true},
-	parse = function(param)
-		return true, param
-	end,
-	func = function(name, param)
-		local err = worldedit.lua(param)
-		if err then
-			worldedit.player_notify(name, "code error: " .. err)
-			minetest.log("action", name.." tried to execute "..param)
-		else
-			worldedit.player_notify(name, "code successfully executed", false)
-			minetest.log("action", name.." executed "..param)
-		end
-	end,
-})
-
-worldedit.register_command("luatransform", {
-	params = "<code>",
-	description = S("Executes <code> as a Lua chunk in the global namespace with the variable pos available, for each node in the current WorldEdit region"),
-	privs = {worldedit=true, server=true},
-	require_pos = 2,
-	parse = function(param)
-		return true, param
-	end,
-	nodes_needed = check_region,
-	func = function(name, param)
-		local err = worldedit.luatransform(worldedit.pos1[name], worldedit.pos2[name], param)
-		if err then
-			worldedit.player_notify(name, "code error: " .. err, false)
-			minetest.log("action", name.." tried to execute luatransform "..param)
-		else
-			worldedit.player_notify(name, "code successfully executed", false)
-			minetest.log("action", name.." executed luatransform "..param)
-		end
 	end,
 })
 
