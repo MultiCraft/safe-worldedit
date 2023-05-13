@@ -215,14 +215,14 @@ elseif minetest.global_exists("sfinv") and sfinv.pages["sfinv:crafting"] then --
 			player:set_inventory_formspec(get_formspec(name, page))
 		end
 	end
-else
-	return minetest.log("error",
-		"worldedit_gui requires a supported gui management mod to be installed.\n"..
-		"To use the it you need to either:\n"..
-		"* use minetest_game or another sfinv-compatible subgame\n"..
-		"* install Unified Inventory, Inventory++ or Smart Inventory\n"..
-		"If you don't want to use worldedit_gui, disable it by editing world.mt or from the main menu."
-	)
+-- else
+-- 	return minetest.log("error",
+-- 		"worldedit_gui requires a supported gui management mod to be installed.\n"..
+-- 		"To use the it you need to either:\n"..
+-- 		"* use minetest_game or another sfinv-compatible subgame\n"..
+-- 		"* install Unified Inventory, Inventory++ or Smart Inventory\n"..
+-- 		"If you don't want to use worldedit_gui, disable it by editing world.mt or from the main menu."
+-- 	)
 end
 
 worldedit.register_gui_function("worldedit_gui", {
