@@ -1518,6 +1518,7 @@ worldedit.register_command("load", {
 	end,
 })
 
+--[[
 worldedit.register_command("mtschemcreate", {
 	params = "<file>",
 	description = S("Save the current WorldEdit region using the Minetest "..
@@ -1627,6 +1628,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		problist[#problist+1] = e
 	end
 end)
+]]
 
 worldedit.register_command("clearobjects", {
 	params = "",
