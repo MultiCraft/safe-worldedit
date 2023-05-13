@@ -186,7 +186,7 @@ elseif minetest.global_exists("smart_inventory") then -- smart_inventory install
 		smartfs_callback = smart_worldedit_gui_callback,
 		sequence = 99
 	})
-elseif minetest.global_exists("sfinv") then -- sfinv installed
+elseif minetest.global_exists("sfinv") and sfinv.pages["sfinv:crafting"] then -- sfinv installed
 	assert(sfinv.enabled)
 	local orig_get = sfinv.pages["sfinv:crafting"].get
 	sfinv.override_page("sfinv:crafting", {
