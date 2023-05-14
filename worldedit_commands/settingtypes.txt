@@ -1,2 +1,5 @@
 # The maximum amount of nodes that can be manipulated with a single chatcommand.
-worldedit.max_region_size (Max WorldEdit region size) int 20000 0 100000
+worldedit.max_region_nodes (Max WorldEdit region nodes) int 20000 0 100000
+
+# The maximum size of the area that can be manipulated.
+worldedit.max_area_size (Max WorldEdit area size) int 20000 0 100000

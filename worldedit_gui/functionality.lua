@@ -818,36 +818,38 @@ worldedit.register_gui_function("worldedit_gui_restore", {
 	end,
 })
 
-worldedit.register_gui_function("worldedit_gui_save_load", {
-	name = "Save/Load",
-	privs = combine_we_privs({"save", "allocate", "load"}),
-	get_formspec = function(name)
-		local filename = gui_filename[name]
-		return "size[6,4]" .. worldedit.get_formspec_header("worldedit_gui_save_load") ..
-			string.format("field[0.5,1.5;4,0.8;worldedit_gui_save_filename;Filename;%s]", minetest.formspec_escape(filename)) ..
-			"field_close_on_enter[worldedit_gui_save_filename;false]" ..
-			"button_exit[0,2.5;3,0.8;worldedit_gui_save_load_submit_save;Save]" ..
-			"button_exit[3,2.5;3,0.8;worldedit_gui_save_load_submit_allocate;Allocate]" ..
-			"button_exit[0,3.5;3,0.8;worldedit_gui_save_load_submit_load;Load]"
-	end,
-})
+if worldedit.registered_commands["save"] then
+	worldedit.register_gui_function("worldedit_gui_save_load", {
+		name = "Save/Load",
+		privs = combine_we_privs({"save", "allocate", "load"}),
+		get_formspec = function(name)
+			local filename = gui_filename[name]
+			return "size[6,4]" .. worldedit.get_formspec_header("worldedit_gui_save_load") ..
+				string.format("field[0.5,1.5;4,0.8;worldedit_gui_save_filename;Filename;%s]", minetest.formspec_escape(filename)) ..
+				"field_close_on_enter[worldedit_gui_save_filename;false]" ..
+				"button_exit[0,2.5;3,0.8;worldedit_gui_save_load_submit_save;Save]" ..
+				"button_exit[3,2.5;3,0.8;worldedit_gui_save_load_submit_allocate;Allocate]" ..
+				"button_exit[0,3.5;3,0.8;worldedit_gui_save_load_submit_load;Load]"
+		end,
+	})
 
-worldedit.register_gui_handler("worldedit_gui_save_load", function(name, fields)
-	if fields.worldedit_gui_save_load_submit_save or fields.worldedit_gui_save_load_submit_allocate or fields.worldedit_gui_save_load_submit_load then
-		gui_filename[name] = tostring(fields.worldedit_gui_save_filename)
-		worldedit.show_page(name, "worldedit_gui_save_load")
+	worldedit.register_gui_handler("worldedit_gui_save_load", function(name, fields)
+		if fields.worldedit_gui_save_load_submit_save or fields.worldedit_gui_save_load_submit_allocate or fields.worldedit_gui_save_load_submit_load then
+			gui_filename[name] = tostring(fields.worldedit_gui_save_filename)
+			worldedit.show_page(name, "worldedit_gui_save_load")
 
-		if fields.worldedit_gui_save_load_submit_save then
-			execute_worldedit_command("save", name, gui_filename[name])
-		elseif fields.worldedit_gui_save_load_submit_allocate then
-			execute_worldedit_command("allocate", name, gui_filename[name])
-		else --fields.worldedit_gui_save_load_submit_load
-			execute_worldedit_command("load", name, gui_filename[name])
+			if fields.worldedit_gui_save_load_submit_save then
+				execute_worldedit_command("save", name, gui_filename[name])
+			elseif fields.worldedit_gui_save_load_submit_allocate then
+				execute_worldedit_command("allocate", name, gui_filename[name])
+			else --fields.worldedit_gui_save_load_submit_load
+				execute_worldedit_command("load", name, gui_filename[name])
+			end
+			return true
 		end
-		return true
-	end
-	return false
-end)
+		return false
+	end)
+end
 
 worldedit.register_gui_function("worldedit_gui_cube", {
 	name = "Cube",

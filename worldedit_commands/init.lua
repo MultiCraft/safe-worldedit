@@ -12,7 +12,7 @@ worldedit.prob_list = {}
 
 
 
-local safe_region = dofile(minetest.get_modpath("worldedit_commands") .. "/safe.lua")
+local safe_region, reset_pending, safe_area = dofile(minetest.get_modpath("worldedit_commands") .. "/safe.lua")
 
 function worldedit.player_notify(name, message)
 	minetest.chat_send_player(name, "WorldEdit -!- " .. message, false)
@@ -27,6 +27,8 @@ local function chatcommand_handler(cmd_name, name, param)
 		local pos1, pos2 = worldedit.pos1[name], worldedit.pos2[name]
 		if pos1 == nil or pos2 == nil then
 			worldedit.player_notify(name, S("no region selected"))
+			return
+		elseif not safe_area(name, pos1, pos2) then
 			return
 		end
 	elseif def.require_pos == 1 then
@@ -51,7 +53,7 @@ local function chatcommand_handler(cmd_name, name, param)
 			if msg then
 				minetest.chat_send_player(name, msg)
 			end
-		end)
+		end, def.require_pos ~= 2)
 	else
 		-- no "safe region" check
 		local _, msg = def.func(name, unpack(parsed))
@@ -400,6 +402,8 @@ worldedit.register_command("reset", {
 		worldedit.pos2[name] = nil
 		worldedit.marker_update(name)
 		worldedit.set_pos[name] = nil
+		--make sure the user does not try to confirm an operation after resetting pos:
+		reset_pending(name)
 		worldedit.player_notify(name, S("region reset"))
 	end,
 })
@@ -1413,110 +1417,112 @@ local function detect_misaligned_schematic(name, pos1, pos2)
 	end
 end
 
-worldedit.register_command("save", {
-	params = "<file>",
-	description = S("Save the current WorldEdit region to \"(world folder)/schems/<file>.we\""),
-	privs = {worldedit=true},
-	require_pos = 2,
-	parse = function(param)
-		if param == "" then
-			return false
-		end
-		if not check_filename(param) then
-			return false, S("Disallowed file name: @1", param)
-		end
-		return true, param
-	end,
-	nodes_needed = check_region,
-	func = function(name, param)
-		local result, count = worldedit.serialize(worldedit.pos1[name],
-				worldedit.pos2[name])
-		detect_misaligned_schematic(name, worldedit.pos1[name], worldedit.pos2[name])
+if minetest.is_singleplayer() then
+	worldedit.register_command("save", {
+		params = "<file>",
+		description = S("Save the current WorldEdit region to \"(world folder)/schems/<file>.we\""),
+		privs = {worldedit=true},
+		require_pos = 2,
+		parse = function(param)
+			if param == "" then
+				return false
+			end
+			if not check_filename(param) then
+				return false, S("Disallowed file name: @1", param)
+			end
+			return true, param
+		end,
+		nodes_needed = check_region,
+		func = function(name, param)
+			local result, count = worldedit.serialize(worldedit.pos1[name],
+					worldedit.pos2[name])
+			detect_misaligned_schematic(name, worldedit.pos1[name], worldedit.pos2[name])
 
-		local path = minetest.get_worldpath() .. "/schems"
-		-- Create directory if it does not already exist
-		minetest.mkdir(path)
+			local path = minetest.get_worldpath() .. "/schems"
+			-- Create directory if it does not already exist
+			minetest.mkdir(path)
 
-		local filename = path .. "/" .. param .. ".we"
-		local file, err = io.open(filename, "wb")
-		if err ~= nil then
-			worldedit.player_notify(name, S("Could not save file to \"@1\"", filename))
-			return
-		end
-		file:write(result)
-		file:flush()
-		file:close()
+			local filename = path .. "/" .. param .. ".we"
+			local file, err = io.open(filename, "wb")
+			if err ~= nil then
+				worldedit.player_notify(name, S("Could not save file to \"@1\"", filename))
+				return
+			end
+			file:write(result)
+			file:flush()
+			file:close()
 
-		worldedit.player_notify(name, S("@1 nodes saved", count))
-	end,
-})
+			worldedit.player_notify(name, S("@1 nodes saved", count))
+		end,
+	})
 
-worldedit.register_command("allocate", {
-	params = "<file>",
-	description = S("Set the region defined by nodes from \"(world folder)/schems/<file>.we\" as the current WorldEdit region"),
-	privs = {worldedit=true},
-	require_pos = 1,
-	parse = function(param)
-		if param == "" then
-			return false
-		end
-		if not check_filename(param) then
-			return false, S("Disallowed file name: @1", param)
-		end
-		return true, param
-	end,
-	func = function(name, param)
-		local pos = worldedit.pos1[name]
+	worldedit.register_command("allocate", {
+		params = "<file>",
+		description = S("Set the region defined by nodes from \"(world folder)/schems/<file>.we\" as the current WorldEdit region"),
+		privs = {worldedit=true},
+		require_pos = 1,
+		parse = function(param)
+			if param == "" then
+				return false
+			end
+			if not check_filename(param) then
+				return false, S("Disallowed file name: @1", param)
+			end
+			return true, param
+		end,
+		func = function(name, param)
+			local pos = worldedit.pos1[name]
 
-		local value = open_schematic(name, param)
-		if not value then
-			return false
-		end
+			local value = open_schematic(name, param)
+			if not value then
+				return false
+			end
 
-		local nodepos1, nodepos2, count = worldedit.allocate(pos, value)
-		if not nodepos1 then
-			worldedit.player_notify(name, S("Schematic empty, nothing allocated"))
-			return false
-		end
+			local nodepos1, nodepos2, count = worldedit.allocate(pos, value)
+			if not nodepos1 then
+				worldedit.player_notify(name, S("Schematic empty, nothing allocated"))
+				return false
+			end
 
-		worldedit.pos1[name] = nodepos1
-		worldedit.pos2[name] = nodepos2
-		worldedit.marker_update(name)
+			worldedit.pos1[name] = nodepos1
+			worldedit.pos2[name] = nodepos2
+			worldedit.marker_update(name)
 
-		worldedit.player_notify(name, S("@1 nodes allocated", count))
-	end,
-})
+			worldedit.player_notify(name, S("@1 nodes allocated", count))
+		end,
+	})
 
-worldedit.register_command("load", {
-	params = "<file>",
-	description = S("Load nodes from \"(world folder)/schems/<file>[.we[m]]\" with position 1 of the current WorldEdit region as the origin"),
-	privs = {worldedit=true},
-	require_pos = 1,
-	parse = function(param)
-		if param == "" then
-			return false
-		end
-		if not check_filename(param) then
-			return false, S("Disallowed file name: @1", param)
-		end
-		return true, param
-	end,
-	func = function(name, param)
-		local pos = worldedit.pos1[name]
+	worldedit.register_command("load", {
+		params = "<file>",
+		description = S("Load nodes from \"(world folder)/schems/<file>[.we[m]]\" with position 1 of the current WorldEdit region as the origin"),
+		privs = {worldedit=true},
+		require_pos = 1,
+		parse = function(param)
+			if param == "" then
+				return false
+			end
+			if not check_filename(param) then
+				return false, S("Disallowed file name: @1", param)
+			end
+			return true, param
+		end,
+		func = function(name, param)
+			local pos = worldedit.pos1[name]
 
-		local value = open_schematic(name, param)
-		if not value then
-			return false
-		end
+			local value = open_schematic(name, param)
+			if not value then
+				return false
+			end
 
-		local count = worldedit.deserialize(pos, value)
-		if count == nil then
-			worldedit.player_notify(name, S("Loading failed!"))
-			return false
-		end
-		worldedit.player_notify(name, S("@1 nodes loaded", count))
-	end,
-})
+			local count = worldedit.deserialize(pos, value)
+			if count == nil then
+				worldedit.player_notify(name, S("Loading failed!"))
+				return false
+			end
+			worldedit.player_notify(name, S("@1 nodes loaded", count))
+		end,
+	})
+end
 
 --[[
 worldedit.register_command("mtschemcreate", {
