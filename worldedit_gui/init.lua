@@ -106,7 +106,7 @@ if minetest.global_exists("unified_inventory") then -- unified inventory install
 			player:set_inventory_formspec(get_formspec(name, page))
 		end
 	end
-elseif minetest.global_exists("inventory_plus") then -- inventory++ installed
+elseif minetest.global_exists("inventory_plus") and inventory_plus.register_button then -- inventory++ installed
 	minetest.register_on_joinplayer(function(player)
 		local can_worldedit = minetest.check_player_privs(player:get_player_name(), {worldedit=true})
 		if can_worldedit then
