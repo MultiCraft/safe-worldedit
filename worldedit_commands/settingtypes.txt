@@ -2,4 +2,4 @@
 worldedit.max_region_nodes (Max WorldEdit region nodes) int 20000 0 100000
 
 # The maximum size of the area that can be manipulated.
-worldedit.max_area_size (Max WorldEdit area size) int 20000 0 100000
+worldedit.max_area_size (Max WorldEdit area size) int 128 0 10000
