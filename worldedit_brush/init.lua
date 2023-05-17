@@ -16,7 +16,7 @@ local brush_on_use = function(itemstack, placer)
 		return false
 	end
 
-	local cmddef = worldedit.registered_commands[cmd]
+	local cmddef = minetest.registered_chatcommands["/" .. cmd]
 	if cmddef == nil then return false end -- shouldn't happen as //brush checks this
 
 	local has_privs, missing_privs = minetest.check_player_privs(name, cmddef.privs)
@@ -48,13 +48,9 @@ local brush_on_use = function(itemstack, placer)
 		return player_notify_old(name, msg)
 	end
 
-	assert(cmddef.require_pos < 2)
-	local parsed = {cmddef.parse(meta:get_string("params"))}
-	if not table.remove(parsed, 1) then return false end -- shouldn't happen
-
 	minetest.log("action", string.format("%s uses WorldEdit brush (//%s) at %s",
 		name, cmd, minetest.pos_to_string(pointed_thing.under)))
-	cmddef.func(name, unpack(parsed))
+	cmddef.func(name, meta:get_string("params"))
 
 	worldedit.player_notify = player_notify_old
 	return true
