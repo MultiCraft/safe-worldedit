@@ -968,10 +968,11 @@ worldedit.register_command("copy", {
 	require_pos = 2,
 	parse = function(param)
 		local found, _, axis, amount = param:find("^([xyz%?])%s+([+-]?%d+)$")
-		if found == nil then
+		amount = tonumber(amount)
+		if found == nil or not amount or math.abs(amount) > 65535 then
 			return false
 		end
-		return true, axis, tonumber(amount)
+		return true, axis, amount
 	end,
 	nodes_needed = function(name, axis, amount)
 		return check_region(name) * 2
@@ -995,10 +996,11 @@ worldedit.register_command("move", {
 	require_pos = 2,
 	parse = function(param)
 		local found, _, axis, amount = param:find("^([xyz%?])%s+([+-]?%d+)$")
-		if found == nil then
+		amount = tonumber(amount)
+		if found == nil or not amount or math.abs(amount) > 65535 then
 			return false
 		end
-		return true, axis, tonumber(amount)
+		return true, axis, amount
 	end,
 	nodes_needed = function(name, axis, amount)
 		return check_region(name) * 2
