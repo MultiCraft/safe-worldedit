@@ -10,7 +10,7 @@ worldedit.inspect = {}
 worldedit.prob_pos = {}
 worldedit.prob_list = {}
 
-
+local mch_exists = minetest.get_modpath("multicrafthosting") ~= nil
 
 local safe_region, reset_pending, safe_area = dofile(minetest.get_modpath("worldedit_commands") .. "/safe.lua")
 
@@ -1419,7 +1419,7 @@ local function detect_misaligned_schematic(name, pos1, pos2)
 	end
 end
 
-if minetest.is_singleplayer() then
+if not mch_exists then
 	worldedit.register_command("save", {
 		params = "<file>",
 		description = S("Save the current WorldEdit region to \"(world folder)/schems/<file>.we\""),
