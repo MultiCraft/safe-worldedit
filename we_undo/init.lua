@@ -1237,7 +1237,7 @@ local function get_overridden_changer(command, changer_original, func_get_bounda
 	end
 end
 
-local original_place_schematic = minetest.place_schematic
+--[[local original_place_schematic = minetest.place_schematic
 override_cc_with_confirm("/mtschemplace",
 	function(params)
 		minetest.place_schematic = get_overridden_changer(
@@ -1285,7 +1285,7 @@ override_cc_with_confirm("/luatransform",
 	function()
 		worldedit.luatransform = we_luatransform
 	end
-)
+)]]
 
 local function override_we_changer(command_name, function_name, collect_meta,
 		func_get_boundaries)
