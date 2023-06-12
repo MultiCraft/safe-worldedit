@@ -22,7 +22,7 @@ minetest.register_tool(":worldedit:wand", {
 		local name = placer:get_player_name()
 		if not minetest.check_player_privs(name, "worldedit") then
 			worldedit.player_notify(name, "You are not allowed to use any WorldEdit commands.")
-			return itemstack
+			return
 		end
 		if pointed_thing.type == "node" then
 			-- set and mark pos1
