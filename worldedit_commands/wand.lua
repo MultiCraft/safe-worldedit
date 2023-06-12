@@ -13,12 +13,17 @@ local punched_air_time = {}
 minetest.register_tool(":worldedit:wand", {
 	description = S("WorldEdit Wand tool\nLeft-click to set 1st position, right-click to set 2nd"),
 	inventory_image = "worldedit_wand.png",
+	wield_image = "worldedit_wand.png^[transformR90",
 	stack_max = 1, -- there is no need to have more than one
 	liquids_pointable = true, -- ground with only water on can be selected as well
 
 	on_use = function(itemstack, placer, pointed_thing)
 		if placer == nil or pointed_thing == nil then return end
 		local name = placer:get_player_name()
+		if not minetest.check_player_privs(name, "worldedit") then
+			worldedit.player_notify(name, "You are not allowed to use any WorldEdit commands.")
+			return itemstack
+		end
 		if pointed_thing.type == "node" then
 			-- set and mark pos1
 			worldedit.pos1[name] = above_or_under(placer, pointed_thing)
@@ -45,6 +50,10 @@ minetest.register_tool(":worldedit:wand", {
 			return itemstack
 		end
 		local name = placer:get_player_name()
+		if not minetest.check_player_privs(name, "worldedit") then
+			worldedit.player_notify(name, "You are not allowed to use any WorldEdit commands.")
+			return itemstack
+		end
 		-- set and mark pos2
 		worldedit.pos2[name] = above_or_under(placer, pointed_thing)
 		worldedit.mark_pos2(name)
@@ -56,6 +65,10 @@ minetest.register_tool(":worldedit:wand", {
 			return itemstack
 		end
 		local name = user:get_player_name()
+		if not minetest.check_player_privs(name, "worldedit") then
+			worldedit.player_notify(name, "You are not allowed to use any WorldEdit commands.")
+			return itemstack
+		end
 		local entity = pointed_thing.ref:get_luaentity()
 		if entity and entity.name == "worldedit:pos1" then
 			-- set pos2 = pos1

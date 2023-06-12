@@ -9,6 +9,12 @@ local brush_on_use = function(itemstack, placer)
 	local meta = itemstack:get_meta()
 	local name = placer:get_player_name()
 
+	if not minetest.check_player_privs(name, "worldedit") then
+		worldedit.player_notify(name,
+			"You are not allowed to use any WorldEdit commands.")
+		return false
+	end
+
 	local cmd = meta:get_string("command")
 	if cmd == "" then
 		worldedit.player_notify(name,
