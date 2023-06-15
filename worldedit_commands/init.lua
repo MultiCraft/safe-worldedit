@@ -160,19 +160,25 @@ end
 
 local description_cache = nil
 
+local function node_name_valid(nodename)
+	return minetest.get_item_group(nodename, "not_in_creative_inventory") == 0 and nodename ~= "ignore"
+end
+
 -- normalizes node "description" `nodename`, returning a string (or nil)
 worldedit.normalize_nodename = function(nodename)
 	nodename = nodename:gsub("^%s*(.-)%s*$", "%1") -- strip spaces
 	if nodename == "" then return nil end
 
 	local fullname = ItemStack({name=nodename}):get_name() -- resolve aliases
-	if minetest.registered_nodes[fullname] or fullname == "air" then -- full name
+	if (minetest.registered_nodes[fullname] and node_name_valid(fullname)) or
+			fullname == "air" then -- full name
 		return fullname
 	end
 	nodename = nodename:lower()
 
 	for key, _ in pairs(minetest.registered_nodes) do
-		if string_endswith(key:lower(), ":" .. nodename) then -- matches name (w/o mod part)
+		if string_endswith(key:lower(), ":" .. nodename) and
+				node_name_valid(key) then -- matches name (w/o mod part)
 			return key
 		end
 	end
@@ -182,7 +188,7 @@ worldedit.normalize_nodename = function(nodename)
 		description_cache = {}
 		for key, value in pairs(minetest.registered_nodes) do
 			local desc = strip_escapes(value.description):gsub("\n.*", "", 1):lower()
-			if desc ~= "" then
+			if desc ~= "" and node_name_valid(key) then
 				description_cache[key] = desc
 			end
 		end
