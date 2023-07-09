@@ -1035,10 +1035,11 @@ worldedit.register_command("stack", {
 	require_pos = 2,
 	parse = function(param)
 		local found, _, axis, repetitions = param:find("^([xyz%?])%s+([+-]?%d+)$")
-		if found == nil then
+		repetitions = tonumber(repetitions)
+		if found == nil or math.abs(repetitions) > 100 then
 			return false
 		end
-		return true, axis, tonumber(repetitions)
+		return true, axis, repetitions
 	end,
 	nodes_needed = function(name, axis, repetitions)
 		return check_region(name) * math.abs(repetitions)
@@ -1065,7 +1066,8 @@ worldedit.register_command("stack2", {
 	require_pos = 2,
 	parse = function(param)
 		local repetitions, incs = param:match("(%d+)%s*(.+)")
-		if repetitions == nil then
+		repetitions = tonumber(repetitions)
+		if repetitions == nil or math.abs(repetitions) > 100 then
 			return false, S("invalid count: @1", param)
 		end
 		local x, y, z = incs:match("([+-]?%d+) ([+-]?%d+) ([+-]?%d+)")
@@ -1099,7 +1101,8 @@ worldedit.register_command("stretch", {
 			return false
 		end
 		stretchx, stretchy, stretchz = tonumber(stretchx), tonumber(stretchy), tonumber(stretchz)
-		if stretchx == 0 or stretchy == 0 or stretchz == 0 then
+		if stretchx == 0 or stretchy == 0 or stretchz == 0 or
+				math.abs(stretchx * stretchy * stretchz) > 100 then
 			return false, S("invalid scaling factors: @1", param)
 		end
 		return true, stretchx, stretchy, stretchz

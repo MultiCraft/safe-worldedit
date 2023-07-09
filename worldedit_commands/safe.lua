@@ -23,9 +23,9 @@ local function safe_region(name, count, callback, strict)
 	end
 
 	-- Prevent the operation if strict is set (if the safe_area check wasn't used)
-	if strict then
+	if strict or count > max_size ^ 3 then
 		worldedit.player_notify(name, "This operation would affect up to " ..
-			count .. " nodes; you can only update " .. max_size .. " nodes at a time")
+			count .. " nodes; you can only update " .. max_nodes .. " nodes at a time")
 		return
 	end
 
