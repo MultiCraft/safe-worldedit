@@ -271,7 +271,7 @@ end
 
 
 worldedit.register_command("about", {
-	privs = {},
+	privs = {worldedit=true},
 	params = "",
 	description = S("Get information about the WorldEdit mod"),
 	func = function(name)
@@ -286,7 +286,7 @@ worldedit.register_command("about", {
 
 -- mostly copied from builtin/chatcommands.lua with minor modifications
 worldedit.register_command("help", {
-	privs = {},
+	privs = {worldedit=true},
 	params = "[all/<cmd>]",
 	description = S("Get help for WorldEdit commands"),
 	parse = function(param)
