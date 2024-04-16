@@ -1454,6 +1454,13 @@ if not mch_exists then
 			minetest.mkdir(path)
 
 			local filename = path .. "/" .. param .. ".we"
+			local f_r = io.open(filename, "r")
+			if f_r then
+				f_r:close()
+				worldedit.player_notify(name, S("File \"@1\" already exists", param))
+				return
+			end
+
 			local file, err = io.open(filename, "wb")
 			if err ~= nil then
 				worldedit.player_notify(name, S("Could not save file to \"@1\"", filename))
@@ -1464,6 +1471,30 @@ if not mch_exists then
 			file:close()
 
 			worldedit.player_notify(name, S("@1 nodes saved", count))
+		end,
+	})
+
+	worldedit.register_command("del_saved", {
+		params = "<file>",
+		description = S("Deletes the specified saved file"),
+		privs = {worldedit=true},
+		parse = function(param)
+			if param == "" then
+				return false
+			end
+			if not check_filename(param) then
+				return false, S("Disallowed file name: @1", param)
+			end
+			return true, param
+		end,
+		func = function(name, param)
+			local path = minetest.get_worldpath() .. "/schems"
+			local filename = path .. "/" .. param .. ".we"
+			if os.remove(filename) then
+				worldedit.player_notify(name, S("Removed file \"@1\"", param))
+			else
+				worldedit.player_notify(name, S("Could not remove file \"@1\"", param))
+			end
 		end,
 	})
 
