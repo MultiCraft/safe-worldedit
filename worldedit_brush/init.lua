@@ -1,9 +1,3 @@
-if minetest.raycast == nil then
-	error(
-		"worldedit_brush requires at least Minetest 5.0"
-	)
-end
-
 local S = minetest.get_translator("worldedit_brush")
 
 local BRUSH_MAX_DIST = 150
@@ -20,7 +14,8 @@ local brush_on_use = function(itemstack, placer)
 	local cmd = meta:get_string("command")
 	if cmd == "" then
 		worldedit.player_notify(name,
-			S("This brush is not bound, use //brush to bind a command to it."))
+			S("This brush is not bound, use @1 to bind a command to it.",
+			minetest.colorize("#00ffff", "//brush")))
 		return false
 	end
 
@@ -78,7 +73,7 @@ minetest.register_tool(":worldedit:brush", {
 worldedit.register_command("brush", {
 	privs = {worldedit=true},
 	params = S("none/<cmd> [parameters]"),
-	description = S("Assign command to WorldEdit brush item"),
+	description = S("Assign command to WorldEdit brush item or clear assignment using 'none'"),
 	parse = function(param)
 		local found, _, cmd, params = param:find("^([^%s]+)%s+(.+)$")
 		if not found then
@@ -105,21 +100,22 @@ worldedit.register_command("brush", {
 		else
 			local cmddef = worldedit.registered_commands[cmd]
 			if cmddef == nil or cmddef.require_pos ~= 1 then
-				worldedit.player_notify(name, S("@1 cannot be used with brushes", minetest.colorize("#00ffff", "//"..cmd)))
+				worldedit.player_notify(name, S("@1 cannot be used with brushes",
+					minetest.colorize("#00ffff", "//"..cmd)))
 				return
 			end
 
 			-- Try parsing command params so we can give the user feedback
 			local ok, err = cmddef.parse(params)
 			if not ok then
-				err = err or "invalid usage"
-				worldedit.player_notify(name, S("Error with brush command: @1", err))
+				err = err or S("invalid usage")
+				worldedit.player_notify(name, S("Error with command: @1", err))
 				return
 			end
 
 			meta:set_string("command", cmd)
 			meta:set_string("params", params)
-			local fullcmd = "//" .. cmd .. " " .. params
+			local fullcmd = minetest.colorize("#00ffff", "//"..cmd) .. " " .. params
 			meta:set_string("description",
 				minetest.registered_tools["worldedit:brush"].description .. ": " .. fullcmd)
 			worldedit.player_notify(name, S("Brush assigned to command: @1", fullcmd))
