@@ -3,7 +3,9 @@ local S = minetest.get_translator("worldedit_commands")
 --`count` is the number of nodes that would possibly be modified
 --`callback` is a callback to run when the user confirms
 local max_nodes = tonumber(minetest.settings:get("worldedit.max_region_nodes")) or 20000
+max_nodes = math.min(max_nodes, 100000)
 local max_size = tonumber(minetest.settings:get("worldedit.max_area_size")) or 128
+max_size = math.min(max_size, 1024)
 local abs = math.abs
 local safe_region_callback = {}
 
