@@ -10,8 +10,6 @@ worldedit.inspect = {}
 worldedit.prob_pos = {}
 worldedit.prob_list = {}
 
-local mch_exists = minetest.get_modpath("multicrafthosting") ~= nil
-
 local safe_region, reset_pending, safe_area = dofile(minetest.get_modpath("worldedit_commands") .. "/safe.lua")
 
 function worldedit.player_notify(name, message)
@@ -1428,143 +1426,141 @@ local function detect_misaligned_schematic(name, pos1, pos2)
 	end
 end
 
-if not mch_exists then
-	worldedit.register_command("save", {
-		params = "<file>",
-		description = S("Save the current WorldEdit region to \"(world folder)/schems/<file>.we\""),
-		privs = {worldedit=true},
-		require_pos = 2,
-		parse = function(param)
-			if param == "" then
-				return false
-			end
-			if not check_filename(param) then
-				return false, S("Disallowed file name: @1", param)
-			end
-			return true, param
-		end,
-		nodes_needed = check_region,
-		func = function(name, param)
-			local result, count = worldedit.serialize(worldedit.pos1[name],
-					worldedit.pos2[name])
-			detect_misaligned_schematic(name, worldedit.pos1[name], worldedit.pos2[name])
+worldedit.register_command("save", {
+	params = "<file>",
+	description = S("Save the current WorldEdit region to \"(world folder)/schems/<file>.we\""),
+	privs = {worldedit=true},
+	require_pos = 2,
+	parse = function(param)
+		if param == "" then
+			return false
+		end
+		if not check_filename(param) then
+			return false, S("Disallowed file name: @1", param)
+		end
+		return true, param
+	end,
+	nodes_needed = check_region,
+	func = function(name, param)
+		local result, count = worldedit.serialize(worldedit.pos1[name],
+				worldedit.pos2[name])
+		detect_misaligned_schematic(name, worldedit.pos1[name], worldedit.pos2[name])
 
-			local path = minetest.get_worldpath() .. "/schems"
-			-- Create directory if it does not already exist
-			minetest.mkdir(path)
+		local path = minetest.get_worldpath() .. "/schems"
+		-- Create directory if it does not already exist
+		minetest.mkdir(path)
 
-			local filename = path .. "/" .. param .. ".we"
-			local f_r = io.open(filename, "r")
-			if f_r then
-				f_r:close()
-				worldedit.player_notify(name, S("File \"@1\" already exists", param))
-				return
-			end
+		local filename = path .. "/" .. param .. ".we"
+		local f_r = io.open(filename, "r")
+		if f_r then
+			f_r:close()
+			worldedit.player_notify(name, S("File \"@1\" already exists", param))
+			return
+		end
 
-			local file, err = io.open(filename, "wb")
-			if err ~= nil then
-				worldedit.player_notify(name, S("Could not save file to \"@1\"", filename))
-				return
-			end
-			file:write(result)
-			file:flush()
-			file:close()
+		local file, err = io.open(filename, "wb")
+		if err ~= nil then
+			worldedit.player_notify(name, S("Could not save file to \"@1\"", filename))
+			return
+		end
+		file:write(result)
+		file:flush()
+		file:close()
 
-			worldedit.player_notify(name, S("@1 nodes saved", count))
-		end,
-	})
+		worldedit.player_notify(name, S("@1 nodes saved", count))
+	end,
+})
 
-	worldedit.register_command("del_saved", {
-		params = "<file>",
-		description = S("Deletes the specified saved file"),
-		privs = {worldedit=true},
-		parse = function(param)
-			if param == "" then
-				return false
-			end
-			if not check_filename(param) then
-				return false, S("Disallowed file name: @1", param)
-			end
-			return true, param
-		end,
-		func = function(name, param)
-			local path = minetest.get_worldpath() .. "/schems"
-			local filename = path .. "/" .. param .. ".we"
-			if os.remove(filename) then
-				worldedit.player_notify(name, S("Removed file \"@1\"", param))
-			else
-				worldedit.player_notify(name, S("Could not remove file \"@1\"", param))
-			end
-		end,
-	})
+worldedit.register_command("del_saved", {
+	params = "<file>",
+	description = S("Deletes the specified saved file"),
+	privs = {worldedit=true},
+	parse = function(param)
+		if param == "" then
+			return false
+		end
+		if not check_filename(param) then
+			return false, S("Disallowed file name: @1", param)
+		end
+		return true, param
+	end,
+	func = function(name, param)
+		local path = minetest.get_worldpath() .. "/schems"
+		local filename = path .. "/" .. param .. ".we"
+		if os.remove(filename) then
+			worldedit.player_notify(name, S("Removed file \"@1\"", param))
+		else
+			worldedit.player_notify(name, S("Could not remove file \"@1\"", param))
+		end
+	end,
+})
 
-	worldedit.register_command("allocate", {
-		params = "<file>",
-		description = S("Set the region defined by nodes from \"(world folder)/schems/<file>.we\" as the current WorldEdit region"),
-		privs = {worldedit=true},
-		require_pos = 1,
-		parse = function(param)
-			if param == "" then
-				return false
-			end
-			if not check_filename(param) then
-				return false, S("Disallowed file name: @1", param)
-			end
-			return true, param
-		end,
-		func = function(name, param)
-			local pos = worldedit.pos1[name]
+worldedit.register_command("allocate", {
+	params = "<file>",
+	description = S("Set the region defined by nodes from \"(world folder)/schems/<file>.we\" as the current WorldEdit region"),
+	privs = {worldedit=true},
+	require_pos = 1,
+	parse = function(param)
+		if param == "" then
+			return false
+		end
+		if not check_filename(param) then
+			return false, S("Disallowed file name: @1", param)
+		end
+		return true, param
+	end,
+	func = function(name, param)
+		local pos = worldedit.pos1[name]
 
-			local value = open_schematic(name, param)
-			if not value then
-				return false
-			end
+		local value = open_schematic(name, param)
+		if not value then
+			return false
+		end
 
-			local nodepos1, nodepos2, count = worldedit.allocate(pos, value)
-			if not nodepos1 then
-				worldedit.player_notify(name, S("Schematic empty, nothing allocated"))
-				return false
-			end
+		local nodepos1, nodepos2, count = worldedit.allocate(pos, value)
+		if not nodepos1 then
+			worldedit.player_notify(name, S("Schematic empty, nothing allocated"))
+			return false
+		end
 
-			worldedit.pos1[name] = nodepos1
-			worldedit.pos2[name] = nodepos2
-			worldedit.marker_update(name)
+		worldedit.pos1[name] = nodepos1
+		worldedit.pos2[name] = nodepos2
+		worldedit.marker_update(name)
 
-			worldedit.player_notify(name, S("@1 nodes allocated", count))
-		end,
-	})
+		worldedit.player_notify(name, S("@1 nodes allocated", count))
+	end,
+})
 
-	worldedit.register_command("load", {
-		params = "<file>",
-		description = S("Load nodes from \"(world folder)/schems/<file>[.we[m]]\" with position 1 of the current WorldEdit region as the origin"),
-		privs = {worldedit=true},
-		require_pos = 1,
-		parse = function(param)
-			if param == "" then
-				return false
-			end
-			if not check_filename(param) then
-				return false, S("Disallowed file name: @1", param)
-			end
-			return true, param
-		end,
-		func = function(name, param)
-			local pos = worldedit.pos1[name]
+worldedit.register_command("load", {
+	params = "<file>",
+	description = S("Load nodes from \"(world folder)/schems/<file>[.we[m]]\" with position 1 of the current WorldEdit region as the origin"),
+	privs = {worldedit=true},
+	require_pos = 1,
+	parse = function(param)
+		if param == "" then
+			return false
+		end
+		if not check_filename(param) then
+			return false, S("Disallowed file name: @1", param)
+		end
+		return true, param
+	end,
+	func = function(name, param)
+		local pos = worldedit.pos1[name]
 
-			local value = open_schematic(name, param)
-			if not value then
-				return false
-			end
+		local value = open_schematic(name, param)
+		if not value then
+			return false
+		end
 
-			local count = worldedit.deserialize(pos, value)
-			if count == nil then
-				worldedit.player_notify(name, S("Loading failed!"))
-				return false
-			end
-			worldedit.player_notify(name, S("@1 nodes loaded", count))
-		end,
-	})
-end
+		local count = worldedit.deserialize(pos, value)
+		if count == nil then
+			worldedit.player_notify(name, S("Loading failed!"))
+			return false
+		end
+		worldedit.player_notify(name, S("@1 nodes loaded", count))
+	end,
+})
 
 --[[
 worldedit.register_command("mtschemcreate", {

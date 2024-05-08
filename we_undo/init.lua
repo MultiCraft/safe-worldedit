@@ -8,8 +8,6 @@ local min_commands = tonumber(minetest.settings:get"we_undo.min_commands") or 3
 local max_memory_usage = tonumber(
 	minetest.settings:get"we_undo.max_memory_usage") or 2^25
 
-local mch_exists = minetest.get_modpath("multicrafthosting") ~= nil
-
 ----------------- Journal and we_undo chatcommands -----------------------------
 
 local command_invoker
@@ -1190,7 +1188,6 @@ local function my_we_deserialize(pos_base, ...)
 
 	return count
 end
-if not mch_exists then
 override_cc_with_confirm("/load",
 	function(params)
 		my_we_deserialize_currrent_command = "/load " .. params
@@ -1200,7 +1197,6 @@ override_cc_with_confirm("/load",
 		worldedit.deserialize = we_deserialize
 	end
 )
-end
 
 
 -- A helper function to override a complex function, e.g. mtschemplace
