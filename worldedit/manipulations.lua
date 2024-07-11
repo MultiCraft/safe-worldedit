@@ -624,12 +624,24 @@ function worldedit.fixlight(pos1, pos2)
 	local pos1, pos2 = worldedit.sort_pos(pos1, pos2)
 
 	local vmanip = minetest.get_voxel_manip(pos1, pos2)
+	vmanip:calc_lighting()
 	vmanip:write_to_map()
-	vmanip:update_map() -- this updates the lighting
 
 	return worldedit.volume(pos1, pos2)
 end
 
+
+--- Attempts to fix the liquid in a region.
+-- @return The number of nodes updated.
+function worldedit.fixliquid(pos1, pos2)
+	local pos1, pos2 = worldedit.sort_pos(pos1, pos2)
+
+	local vmanip = minetest.get_voxel_manip(pos1, pos2)
+	vmanip:update_liquids()
+	vmanip:write_to_map()
+
+	return worldedit.volume(pos1, pos2)
+end
 
 --- Clears all objects in a region.
 -- @return The number of objects cleared.

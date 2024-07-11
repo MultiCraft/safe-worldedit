@@ -328,7 +328,7 @@ worldedit.register_command("help", {
 		else
 			local def = worldedit.registered_commands[param]
 			if not def then
-				return false, S("Command not available: ") .. param
+				return false, S("Command not available: @1", param)
 			else
 				return true, format_help_line(param, def)
 			end
@@ -1232,6 +1232,18 @@ worldedit.register_command("fixlight", {
 	nodes_needed = check_region,
 	func = function(name)
 		local count = worldedit.fixlight(worldedit.pos1[name], worldedit.pos2[name])
+		worldedit.player_notify(name, S("@1 nodes updated", count))
+	end,
+})
+
+worldedit.register_command("fixliquid", {
+	params = "",
+	description = S("Fix the liquids in the current WorldEdit region"),
+	privs = {worldedit=true},
+	require_pos = 2,
+	nodes_needed = check_region,
+	func = function(name)
+		local count = worldedit.fixliquid(worldedit.pos1[name], worldedit.pos2[name])
 		worldedit.player_notify(name, S("@1 nodes updated", count))
 	end,
 })

@@ -234,7 +234,7 @@ Can also create shapes other than cylinders, e.g. cones (see documentation above
     //cylinder y 10 10 0 walls:cobble
     //cylinder x 6 0 5 Dirt
     //cylinder z 20 10 20 default:desert_stone
-    
+
 ### `//hollowpyramid x/y/z/? <height> <node>`
 
 Add hollow pyramid centered at WorldEdit position 1 along the given axis with height `<height>` composed of `<node>`.
@@ -345,6 +345,12 @@ Fixes the lighting in the current WorldEdit region.
 
     //fixlight
 
+### `//fixliquid`
+
+Fixes the liquids in the current WorldEdit region.
+
+    //fixliquid
+
 ### `//drain`
 
 Removes any fluid node within the current WorldEdit region.
@@ -447,11 +453,11 @@ This mode can be left with `//mtschemprob finish`. `//mtschemprob get` will disp
 Clears all objects within the WorldEdit region.
 
     //clearobjects
-    
+
 ### `//shift x/y/z/?/up/down/left/right/front/back [+/-]<amount>`
 
 Shifts the selection area by `[+|-]<amount>` without moving its contents.
-The shifting axis can be absolute (`x/y/z`) or relative (`up/down/left/right/front/back`). 
+The shifting axis can be absolute (`x/y/z`) or relative (`up/down/left/right/front/back`).
 
 		//shift left 5
 
@@ -461,14 +467,14 @@ Expands the selection by `<amount>` in the selected absolute or relative axis.
 If specified, the selection can be expanded in the opposite direction over the same axis by `[reverse amount]`.
 
 		//expand right 7 5
-		
+
 ### `//contract [+/-]x/y/z/?/up/down/left/right/front/back <amount> [reverse amount]`
 
 Contracts the selection by `<amount>` in the selected absolute or relative axis.
 If specified, the selection can be contracted in the opposite direction over the same axis by `[reverse amount]`.
 
 		//expand right 7 5
-		
+
 ### `//outset [h/v] <amount>`
 
 Expands the selection in all directions by `<amount>`. If specified,
@@ -476,7 +482,7 @@ the selection can be expanded horizontally in the x and z axes using `h`
 or vertically in the y axis using `v`.
 
 		//outset v 5
-		
+
 ### `//inset [h/v] <amount>`
 
 Contracts the selection in all directions by `<amount>`. If specified,
