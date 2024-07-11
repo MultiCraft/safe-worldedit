@@ -4,6 +4,8 @@ if minetest.raycast == nil then
 	)
 end
 
+local S = minetest.get_translator("worldedit_brush")
+
 local BRUSH_MAX_DIST = 150
 local brush_on_use = function(itemstack, placer)
 	local meta = itemstack:get_meta()
@@ -11,14 +13,14 @@ local brush_on_use = function(itemstack, placer)
 
 	if not minetest.check_player_privs(name, "worldedit") then
 		worldedit.player_notify(name,
-			"You are not allowed to use any WorldEdit commands.")
+			S("You are not allowed to use any WorldEdit commands."))
 		return false
 	end
 
 	local cmd = meta:get_string("command")
 	if cmd == "" then
 		worldedit.player_notify(name,
-			"This brush is not bound, use //brush to bind a command to it.")
+			S("This brush is not bound, use //brush to bind a command to it."))
 		return false
 	end
 
@@ -28,7 +30,7 @@ local brush_on_use = function(itemstack, placer)
 	local has_privs, missing_privs = minetest.check_player_privs(name, cmddef.privs)
 	if not has_privs then
 		worldedit.player_notify(name,
-			"Missing privileges: " .. table.concat(missing_privs, ", "))
+			S("Missing privileges: @1", table.concat(missing_privs, ", ")))
 		return false
 	end
 
@@ -38,7 +40,7 @@ local brush_on_use = function(itemstack, placer)
 	local ray = minetest.raycast(raybegin, rayend, false, true)
 	local pointed_thing = ray:next()
 	if pointed_thing == nil then
-		worldedit.player_notify(name, "Too far away.")
+		worldedit.player_notify(name, S("Too far away."))
 		return false
 	end
 
@@ -63,11 +65,11 @@ local brush_on_use = function(itemstack, placer)
 end
 
 minetest.register_tool(":worldedit:brush", {
-	description = "WorldEdit Brush",
+	description = S("WorldEdit Brush"),
 	inventory_image = "worldedit_brush.png",
 	stack_max = 1, -- no need to stack these (metadata prevents this anyway)
 	range = 0,
-	on_use = function(itemstack, placer, pointed_thing)
+	on_use = function(itemstack, placer)
 		brush_on_use(itemstack, placer)
 		return itemstack -- nothing consumed, nothing changed
 	end,
@@ -75,8 +77,8 @@ minetest.register_tool(":worldedit:brush", {
 
 worldedit.register_command("brush", {
 	privs = {worldedit=true},
-	params = "none/<cmd> [parameters]",
-	description = "Assign command to WorldEdit brush item",
+	params = S("none/<cmd> [parameters]"),
+	description = S("Assign command to WorldEdit brush item"),
 	parse = function(param)
 		local found, _, cmd, params = param:find("^([^%s]+)%s+(.+)$")
 		if not found then
@@ -91,7 +93,7 @@ worldedit.register_command("brush", {
 	func = function(name, cmd, params)
 		local itemstack = minetest.get_player_by_name(name):get_wielded_item()
 		if itemstack == nil or itemstack:get_name() ~= "worldedit:brush" then
-			worldedit.player_notify(name, "Not holding brush item.")
+			worldedit.player_notify(name, S("Not holding brush item."))
 			return
 		end
 
@@ -99,11 +101,11 @@ worldedit.register_command("brush", {
 		local meta = itemstack:get_meta()
 		if cmd == "none" then
 			meta:from_table(nil)
-			worldedit.player_notify(name, "Brush assignment cleared.")
+			worldedit.player_notify(name, S("Brush assignment cleared."))
 		else
 			local cmddef = worldedit.registered_commands[cmd]
 			if cmddef == nil or cmddef.require_pos ~= 1 then
-				worldedit.player_notify(name, "//" .. cmd .. " cannot be used with brushes")
+				worldedit.player_notify(name, S("//@1 cannot be used with brushes", cmd))
 				return
 			end
 
@@ -111,7 +113,7 @@ worldedit.register_command("brush", {
 			local ok, err = cmddef.parse(params)
 			if not ok then
 				err = err or "invalid usage"
-				worldedit.player_notify(name, "Error with brush command: " .. err)
+				worldedit.player_notify(name, S("Error with brush command: @1", err))
 				return
 			end
 
@@ -120,7 +122,7 @@ worldedit.register_command("brush", {
 			local fullcmd = "//" .. cmd .. " " .. params
 			meta:set_string("description",
 				minetest.registered_tools["worldedit:brush"].description .. ": " .. fullcmd)
-			worldedit.player_notify(name, "Brush assigned to command: " .. fullcmd)
+			worldedit.player_notify(name, S("Brush assigned to command: @1", fullcmd))
 		end
 		minetest.get_player_by_name(name):set_wielded_item(itemstack)
 	end,

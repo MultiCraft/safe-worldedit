@@ -1,0 +1,13 @@
+# textdomain: worldedit_brush
+You are not allowed to use any WorldEdit commands.=Вам не разрешается использовать какие-либо команды WorldEdit.
+This brush is not bound, use //brush to bind a command to it.=Эта кисть не привязана, используйте //brush, чтобы привязать к ней команду.
+Missing privileges: @1=Отсутствуют привилегии: @1
+Too far away.=Слишком далеко.
+WorldEdit Brush=Кисть WorldEdit
+none/<cmd> [parameters]=ничего/<команда> [параметры]
+Assign command to WorldEdit brush item=Назначение команды кисти WorldEdit.
+Not holding brush item.=Не держите в руках кисть.
+Brush assignment cleared.=Назначение кисти очищено.
+//@1 cannot be used with brushes=//@1 нельзя использовать с кистями
+Error with brush command: @1=Ошибка при выполнении команды кисти: @1
+Brush assigned to command: @1=Кисти присвоена команда: @1
