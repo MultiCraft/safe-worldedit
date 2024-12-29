@@ -2,10 +2,18 @@ local S = minetest.get_translator("worldedit_commands")
 
 --`count` is the number of nodes that would possibly be modified
 --`callback` is a callback to run when the user confirms
-local max_nodes = tonumber(minetest.settings:get("worldedit.max_region_nodes")) or 20000
-max_nodes = math.min(max_nodes, 100000)
-local max_size = tonumber(minetest.settings:get("worldedit.max_area_size")) or 128
-max_size = math.min(max_size, 1024)
+
+-- These settings may be changed on-the-fly
+local function get_max_region_nodes()
+	local max_nodes = tonumber(minetest.settings:get("worldedit.max_region_nodes")) or 20000
+	return math.min(max_nodes, 100000)
+end
+
+local function get_max_area_size()
+	local max_size = tonumber(minetest.settings:get("worldedit.max_area_size")) or 128
+	return math.min(max_size, 1024)
+end
+
 local abs = math.abs
 local safe_region_callback = {}
 
@@ -20,11 +28,13 @@ local function pos_eq(pos1, pos2)
 end
 
 local function safe_region(name, count, callback, strict)
+	local max_nodes = get_max_region_nodes()
 	if count < max_nodes then
 		return callback()
 	end
 
 	-- Prevent the operation if strict is set (if the safe_area check wasn't used)
+	local max_size = get_max_area_size()
 	if strict or count > max_size ^ 3 then
 		worldedit.player_notify(name, "This operation would affect up to " ..
 			count .. " nodes; you can only update " .. max_nodes .. " nodes at a time")
@@ -89,6 +99,7 @@ minetest.register_chatcommand("/n", {
 })
 
 local function safe_area(name, pos1, pos2)
+	local max_size = get_max_area_size()
 	if abs(pos2.x - pos1.x) + 1 > max_size or abs(pos2.x - pos1.x) + 1 > max_size or
 			abs(pos2.z - pos1.z) + 1 > max_size then
 		worldedit.player_notify(name, S("Your selected area is too big, you can only select areas up to @1 × @2 × @3",
