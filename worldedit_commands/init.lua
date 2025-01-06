@@ -218,7 +218,12 @@ end
 
 -- Determines the axis in which a player is facing, returning an axis ("x", "y", or "z") and the sign (1 or -1)
 function worldedit.player_axis(name)
-	local dir = minetest.get_player_by_name(name):get_look_dir()
+	local player = minetest.get_player_by_name(name)
+	if not player then
+		return "", 0 -- bad behavior
+	end
+
+	local dir = player:get_look_dir()
 	local x, y, z = math.abs(dir.x), math.abs(dir.y), math.abs(dir.z)
 	if x > y then
 		if x > z then
@@ -442,7 +447,9 @@ worldedit.register_command("pos1", {
 	description = S("Set WorldEdit region position @1 to the player's location", 1),
 	privs = {worldedit=true},
 	func = function(name)
-		local pos = minetest.get_player_by_name(name):get_pos()
+		local player = minetest.get_player_by_name(name)
+		if not player then return false end
+		local pos = player:get_pos()
 		pos.x, pos.y, pos.z = math.floor(pos.x + 0.5), math.floor(pos.y + 0.5), math.floor(pos.z + 0.5)
 		worldedit.pos1[name] = pos
 		worldedit.mark_pos1(name)
@@ -455,7 +462,9 @@ worldedit.register_command("pos2", {
 	description = S("Set WorldEdit region position @1 to the player's location", 2),
 	privs = {worldedit=true},
 	func = function(name)
-		local pos = minetest.get_player_by_name(name):get_pos()
+		local player = minetest.get_player_by_name(name)
+		if not player then return false end
+		local pos = player:get_pos()
 		pos.x, pos.y, pos.z = math.floor(pos.x + 0.5), math.floor(pos.y + 0.5), math.floor(pos.z + 0.5)
 		worldedit.pos2[name] = pos
 		worldedit.mark_pos2(name)
