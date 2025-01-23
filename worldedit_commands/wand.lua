@@ -21,7 +21,7 @@ minetest.register_tool(":worldedit:wand", {
 		if placer == nil or pointed_thing == nil then return end
 		local name = placer:get_player_name()
 		if not minetest.check_player_privs(name, "worldedit") then
-			worldedit.player_notify(name, "You are not allowed to use any WorldEdit commands.")
+			worldedit.player_notify(name, S("You are not allowed to use any WorldEdit commands."))
 			return
 		end
 		if pointed_thing.type == "node" then
@@ -51,7 +51,7 @@ minetest.register_tool(":worldedit:wand", {
 		end
 		local name = placer:get_player_name()
 		if not minetest.check_player_privs(name, "worldedit") then
-			worldedit.player_notify(name, "You are not allowed to use any WorldEdit commands.")
+			worldedit.player_notify(name, S("You are not allowed to use any WorldEdit commands."))
 			return itemstack
 		end
 		-- set and mark pos2
@@ -66,7 +66,7 @@ minetest.register_tool(":worldedit:wand", {
 		end
 		local name = user:get_player_name()
 		if not minetest.check_player_privs(name, "worldedit") then
-			worldedit.player_notify(name, "You are not allowed to use any WorldEdit commands.")
+			worldedit.player_notify(name, S("You are not allowed to use any WorldEdit commands."))
 			return itemstack
 		end
 		local entity = pointed_thing.ref:get_luaentity()

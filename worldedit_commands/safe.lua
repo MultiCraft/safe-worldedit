@@ -26,8 +26,8 @@ local function safe_region(name, count, callback, strict)
 
 	-- Prevent the operation if strict is set (if the safe_area check wasn't used)
 	if strict or count > max_size ^ 3 then
-		worldedit.player_notify(name, "This operation would affect up to " ..
-			count .. " nodes; you can only update " .. max_nodes .. " nodes at a time")
+		worldedit.player_notify(name, S("This operation would affect up to @1 nodes;"
+			.. " you can only update @2 nodes at a time", count, max_nodes))
 		return
 	end
 
@@ -47,7 +47,7 @@ local function safe_region(name, count, callback, strict)
 		end
 	end
 
-	worldedit.player_notify(name, "WARNING: this operation could affect up to " .. count .. " nodes; type //y to continue or //n to cancel")
+	worldedit.player_notify(name, S("WARNING: this operation could affect up to @1 nodes; type //y to continue or //n to cancel", count))
 end
 
 local function reset_pending(name)
@@ -65,7 +65,7 @@ minetest.register_chatcommand("/y", {
 	func = function(name)
 		local callback = safe_region_callback[name]
 		if not callback then
-			worldedit.player_notify(name, "no operation pending")
+			worldedit.player_notify(name, S("no operation pending"))
 			return
 		end
 
@@ -80,7 +80,7 @@ minetest.register_chatcommand("/n", {
 	privs = {worldedit=true},
 	func = function(name)
 		if not safe_region_callback[name] then
-			worldedit.player_notify(name, "no operation pending")
+			worldedit.player_notify(name, S("no operation pending"))
 			return
 		end
 
