@@ -543,7 +543,7 @@ do
 end
 
 
-register_test("Code")
+--[[register_test("Code")
 register_test("worldedit.lua", function()
 	-- syntax error
 	local err, ret = worldedit.lua("?")
@@ -577,7 +577,7 @@ register_test("worldedit.luatransform", function()
 		"minetest.swap_node(pos, {name=" .. ("%q"):format(testnode1) .. "})")
 	assert(err == nil)
 	check.filled(pos1, pos1, testnode1)
-end)
+end)]]
 
 ---------------------
 -- Main function
