@@ -57,7 +57,6 @@ function worldedit.set_param2(pos1, pos2, param2)
 	-- Update map
 	manip:set_param2_data(param2_data)
 	manip:write_to_map()
-	manip:update_map()
 
 	return worldedit.volume(pos1, pos2)
 end

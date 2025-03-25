@@ -119,6 +119,5 @@ function mh.finish(manip, data)
 		manip:set_data(data)
 	end
 	manip:write_to_map()
-	manip:update_map()
 end
 
