@@ -118,6 +118,6 @@ function mh.finish(manip, data)
 	if data ~= nil then
 		manip:set_data(data)
 	end
-	manip:write_to_map()
+	manip:write_to_map(true)
 end
 

@@ -713,7 +713,7 @@ undo_funcs.nodes = function(name, data)
 	manip:set_data(m_nodes)
 	manip:set_light_data(m_param1s)
 	manip:set_param2_data(m_param2s)
-	manip:write_to_map()
+	manip:write_to_map(true)
 
 	-- swap metaens strings
 	local indices_m = decompressed_data.indices_m
@@ -876,7 +876,7 @@ undo_funcs.nodeids = function(name, data)
 	end
 
 	manip:set_data(mdata)
-	manip:write_to_map()
+	manip:write_to_map(true)
 
 	data.compressed_data = compress_nodedata{
 		indices_n = indices,
