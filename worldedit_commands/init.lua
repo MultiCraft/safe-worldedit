@@ -23,12 +23,12 @@ local function copy_state(which, name)
 		return {}
 	elseif which == 1 then
 		return {
-			worldedit.pos1[name] and vector.copy(worldedit.pos1[name])
+			worldedit.pos1[name] and vector.new(worldedit.pos1[name])
 		}
 	else
 		return {
-			worldedit.pos1[name] and vector.copy(worldedit.pos1[name]),
-			worldedit.pos2[name] and vector.copy(worldedit.pos2[name])
+			worldedit.pos1[name] and vector.new(worldedit.pos1[name]),
+			worldedit.pos2[name] and vector.new(worldedit.pos2[name])
 		}
 	end
 end
