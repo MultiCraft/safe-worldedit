@@ -601,10 +601,15 @@ function worldedit.orient(pos1, pos2, angle)
 					elseif paramtype2 == "facedir" or
 							paramtype2 == "colorfacedir" then
 						local orient = node.param2 % 32
-						node.param2 = node.param2 - orient +
-								facedir_substitution[orient + 1]
-						swap_node(pos, node)
-						count = count + 1
+						if facedir_substitution[orient + 1] then
+							node.param2 = node.param2 - orient +
+									facedir_substitution[orient + 1]
+							swap_node(pos, node)
+							count = count + 1
+						else
+							minetest.log("error", "[worldedit] Bad " .. paramtype2 ..
+								" value in node " .. dump(node))
+						end
 					end
 				end
 				pos.z = pos.z + 1
