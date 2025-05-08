@@ -10,7 +10,8 @@ worldedit.inspect = {}
 worldedit.prob_pos = {}
 worldedit.prob_list = {}
 
-local safe_region, reset_pending, safe_area = dofile(minetest.get_modpath("worldedit_commands") .. "/safe.lua")
+local safe_region, reset_pending, safe_area, max_size =
+	dofile(minetest.get_modpath("worldedit_commands") .. "/safe.lua")
 
 function worldedit.player_notify(name, message)
 	minetest.chat_send_player(name, "WorldEdit -!- " .. message, false)
@@ -52,7 +53,7 @@ local function chatcommand_handler(cmd_name, name, param)
 		end
 	end
 
-	local parsed = {def.parse(param)}
+	local parsed = {def.parse(param, name)}
 	local success = table.remove(parsed, 1)
 	if not success then
 		worldedit.player_notify(name, parsed[1] or S("invalid usage"))
@@ -1138,12 +1139,20 @@ worldedit.register_command("stack", {
 	category = S("Transformations"),
 	privs = {worldedit=true},
 	require_pos = 2,
-	parse = function(param)
+	parse = function(param, name)
 		local found, _, axis, repetitions = param:find("^([xyz%?])%s+([+-]?%d+)$")
 		repetitions = tonumber(repetitions)
 		if found == nil or math.abs(repetitions) > 100 then
 			return false
 		end
+
+		-- Does this need a separate error or is the 128x128x128 message fine?
+		local pos1, pos2 = worldedit.pos1[name], worldedit.pos2[name]
+		if math.abs((math.abs(pos2[axis] - pos1[axis]) + 1) * repetitions) > max_size then
+			return false, S("Your selected area is too big, you can only select areas up to @1 × @2 × @3",
+				max_size, max_size, max_size)
+		end
+
 		return true, axis, repetitions
 	end,
 	nodes_needed = function(name, axis, repetitions)
@@ -1170,7 +1179,7 @@ worldedit.register_command("stack2", {
 	category = S("Transformations"),
 	privs = {worldedit=true},
 	require_pos = 2,
-	parse = function(param)
+	parse = function(param, name)
 		local repetitions, incs = param:match("(%d+)%s*(.+)")
 		repetitions = tonumber(repetitions)
 		if repetitions == nil or math.abs(repetitions) > 100 then
@@ -1179,6 +1188,14 @@ worldedit.register_command("stack2", {
 		local x, y, z = incs:match("([+-]?%d+) ([+-]?%d+) ([+-]?%d+)")
 		if x == nil then
 			return false, S("invalid increments: @1", param)
+		end
+
+		local pos1, pos2 = worldedit.pos1[name], worldedit.pos2[name]
+		for _, axis in ipairs({"x", "y", "z"}) do
+			if math.abs((math.abs(pos2[axis] - pos1[axis]) + 1) * repetitions) > max_size then
+				return false, S("Your selected area is too big, you can only select areas up to @1 × @2 × @3",
+					max_size, max_size, max_size)
+			end
 		end
 
 		return true, tonumber(repetitions), vector.new(tonumber(x), tonumber(y), tonumber(z))

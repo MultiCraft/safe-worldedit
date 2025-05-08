@@ -99,4 +99,4 @@ local function safe_area(name, pos1, pos2)
 	return true
 end
 
-return safe_region, reset_pending, safe_area
+return safe_region, reset_pending, safe_area, max_size
