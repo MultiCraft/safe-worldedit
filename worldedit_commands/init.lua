@@ -1146,6 +1146,8 @@ worldedit.register_command("stack", {
 			return false
 		end
 
+		if axis == "?" then axis = worldedit.player_axis(name) end
+
 		-- Does this need a separate error or is the 128x128x128 message fine?
 		local pos1, pos2 = worldedit.pos1[name], worldedit.pos2[name]
 		if math.abs((math.abs(pos2[axis] - pos1[axis]) + 1) * repetitions) > max_size then
