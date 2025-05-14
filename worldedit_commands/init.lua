@@ -1146,7 +1146,11 @@ worldedit.register_command("stack", {
 			return false
 		end
 
-		if axis == "?" then axis = worldedit.player_axis(name) end
+		if axis == "?" then
+			local sign
+			axis, sign = worldedit.player_axis(name)
+			repetitions = repetitions * sign
+		end
 
 		-- Does this need a separate error or is the 128x128x128 message fine?
 		local pos1, pos2 = worldedit.pos1[name], worldedit.pos2[name]
@@ -1161,12 +1165,6 @@ worldedit.register_command("stack", {
 		return check_region(name) * math.abs(repetitions)
 	end,
 	func = function(name, axis, repetitions)
-		if axis == "?" then
-			local sign
-			axis, sign = worldedit.player_axis(name)
-			repetitions = repetitions * sign
-		end
-
 		local pos1, pos2 = worldedit.pos1[name], worldedit.pos2[name]
 		local count = worldedit.volume(pos1, pos2) * math.abs(repetitions)
 		worldedit.stack(pos1, pos2, axis, repetitions, function()
