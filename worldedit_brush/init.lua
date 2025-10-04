@@ -41,7 +41,14 @@ local brush_on_use = function(itemstack, placer)
 
 	assert(pointed_thing.type == "node")
 	worldedit.pos1[name] = pointed_thing.under
-	worldedit.pos2[name] = nil
+
+	-- Hotfix for `cubeapply`
+	if cmddef.require_pos == 2 then
+		worldedit.pos2[name] = pointed_thing.under
+	else
+		worldedit.pos2[name] = nil
+	end
+
 	worldedit.marker_update(name)
 
 	-- this isn't really clean...
