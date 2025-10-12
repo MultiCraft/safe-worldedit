@@ -123,6 +123,7 @@ Warning: The schematic contains excessive free space and WILL be misaligned when
 Save the current WorldEdit region to "(world folder)/schems/<file>.we"=
 Schematics=
 Disallowed file name: @1=
+File "@1" already exists=
 Could not save file to "@1"=
 @1 nodes saved=
 Deletes the specified saved file=

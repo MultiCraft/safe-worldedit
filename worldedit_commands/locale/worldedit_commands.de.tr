@@ -134,6 +134,7 @@ Warning: The schematic contains excessive free space and WILL be misaligned when
 Save the current WorldEdit region to "(world folder)/schems/<file>.we"=Das aktuelle WorldEdit-Gebiet in "(Weltordner)/schems/<file>.we" speichern
 Schematics=Schematic
 Disallowed file name: @1=Nicht erlaubter Dateiname: @1
+File "@1" already exists=Die Datei "@1" existiert bereits
 Could not save file to "@1"=Konnte die Datei nicht unter "@1" speichern
 @1 nodes saved=@1 Blöcke gespeichert
 Deletes the specified saved file=Löscht die angegebene gespeicherte Datei

@@ -104,6 +104,7 @@ Restores nodes hidden with WorldEdit in the current WorldEdit region=Восст�
 Warning: The schematic contains excessive free space and WILL be misaligned when allocated or loaded. To avoid this, shrink your area to cover exactly the nodes to be saved.=Предупреждение: Схема содержит слишком много свободного места и будет смещена при размещении или загрузке. Чтобы избежать этого, уменьшите область так, чтобы она охватывала именно те узлы, которые необходимо сохранить.
 Save the current WorldEdit region to "(world folder)/schems/<file>.we"=Сохранить текущий WorldEdit-регион в файл "(world folder)/schems/<file>.we"
 Disallowed file name: @1=Недопустимое имя файла: @1
+File "@1" already exists=Файл "@1" уже существует
 Could not save file to "@1"=Не удалось сохранить файл в "@1"
 @1 nodes saved=сохранено @1 нод(а/ы)
 Deletes the specified saved file=Удалить выбранный сохраненный файл
