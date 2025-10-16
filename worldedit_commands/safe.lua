@@ -6,6 +6,8 @@ local max_nodes = tonumber(minetest.settings:get("worldedit.max_region_nodes")) 
 max_nodes = math.min(max_nodes, 100000)
 local max_size = tonumber(minetest.settings:get("worldedit.max_area_size")) or 128
 max_size = math.min(max_size, 1024)
+local hard_max_nodes = tonumber(minetest.settings:get("worldedit.hard_max_region_nodes")) or 1000000
+hard_max_nodes = math.min(hard_max_nodes, max_size ^ 3)
 local abs = math.abs
 local safe_region_callback = {}
 
@@ -25,9 +27,9 @@ local function safe_region(name, count, callback, strict)
 	end
 
 	-- Prevent the operation if strict is set (if the safe_area check wasn't used)
-	if strict or count > max_size ^ 3 then
+	if strict or count > hard_max_nodes then
 		worldedit.player_notify(name, S("This operation would affect up to @1 nodes;"
-			.. " you can only update @2 nodes at a time", count, max_nodes))
+			.. " you can only update @2 nodes at a time", count, strict and max_nodes or hard_max_nodes))
 		return
 	end
 

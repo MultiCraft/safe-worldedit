@@ -236,7 +236,7 @@ worldedit.register_command("cubeapply", {
 			return false
 		end
 		local cmddef = worldedit.registered_commands[cmd]
-		if cmddef == nil or cmddef.require_pos ~= 2 then
+		if cmddef == nil or cmddef.require_pos ~= 2 or cmddef.name == "stretch" then
 			return false, S("invalid usage: @1 cannot be used with cubeapply",
 				minetest.colorize("#00ffff", "//"..cmd))
 		end
