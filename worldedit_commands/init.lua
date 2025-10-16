@@ -524,8 +524,7 @@ worldedit.register_command("pos1", {
 	func = function(name)
 		local player = minetest.get_player_by_name(name)
 		if not player then return false end
-		local pos = player:get_pos()
-		pos.x, pos.y, pos.z = math.floor(pos.x + 0.5), math.floor(pos.y + 0.5), math.floor(pos.z + 0.5)
+		local pos = vector.round(player:get_pos())
 		if not minetest.is_valid_pos(pos) then return false end
 		worldedit.pos1[name] = pos
 		worldedit.mark_pos1(name)
@@ -541,8 +540,7 @@ worldedit.register_command("pos2", {
 	func = function(name)
 		local player = minetest.get_player_by_name(name)
 		if not player then return false end
-		local pos = player:get_pos()
-		pos.x, pos.y, pos.z = math.floor(pos.x + 0.5), math.floor(pos.y + 0.5), math.floor(pos.z + 0.5)
+		local pos = vector.round(player:get_pos())
 		if not minetest.is_valid_pos(pos) then return false end
 		worldedit.pos2[name] = pos
 		worldedit.mark_pos2(name)
