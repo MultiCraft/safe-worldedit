@@ -90,6 +90,10 @@ minetest.register_chatcommand("/n", {
 })
 
 local function safe_area(name, pos1, pos2)
+	if not minetest.is_valid_pos(pos1) or not minetest.is_valid_pos(pos2) then
+		return false
+	end
+
 	if abs(pos2.x - pos1.x) + 1 > max_size or abs(pos2.x - pos1.x) + 1 > max_size or
 			abs(pos2.z - pos1.z) + 1 > max_size then
 		worldedit.player_notify(name, S("Your selected area is too big, you can only select areas up to @1 × @2 × @3",

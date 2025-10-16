@@ -526,6 +526,7 @@ worldedit.register_command("pos1", {
 		if not player then return false end
 		local pos = player:get_pos()
 		pos.x, pos.y, pos.z = math.floor(pos.x + 0.5), math.floor(pos.y + 0.5), math.floor(pos.z + 0.5)
+		if not minetest.is_valid_pos(pos) then return false end
 		worldedit.pos1[name] = pos
 		worldedit.mark_pos1(name)
 		worldedit.player_notify(name, S("position @1 set to @2", 1, minetest.pos_to_string(pos)))
@@ -542,6 +543,7 @@ worldedit.register_command("pos2", {
 		if not player then return false end
 		local pos = player:get_pos()
 		pos.x, pos.y, pos.z = math.floor(pos.x + 0.5), math.floor(pos.y + 0.5), math.floor(pos.z + 0.5)
+		if not minetest.is_valid_pos(pos) then return false end
 		worldedit.pos2[name] = pos
 		worldedit.mark_pos2(name)
 		worldedit.player_notify(name, S("position @1 set to @2", 2, minetest.pos_to_string(pos)))
@@ -594,7 +596,9 @@ worldedit.register_command("fixedpos", {
 		if found == nil then
 			return false
 		end
-		return true, flag, vector.new(tonumber(x), tonumber(y), tonumber(z))
+		local pos = vector.new(tonumber(x), tonumber(y), tonumber(z))
+		if not minetest.is_valid_pos(pos) then return false end
+		return true, flag, pos
 	end,
 	func = function(name, flag, pos)
 		if flag == "set1" then

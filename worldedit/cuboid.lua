@@ -17,8 +17,13 @@ worldedit.cuboid_volumetric_expand = function(name, amount)
 	delta_dir1, delta_dir2 = worldedit.get_expansion_directions(pos1, pos2)
 	delta1 = vector.multiply(delta1, delta_dir1)
 	delta2 = vector.multiply(delta2, delta_dir2)
-	worldedit.pos1[name] = vector.add(pos1, delta1)
-	worldedit.pos2[name] = vector.add(pos2, delta2)
+	local new_pos1 = vector.add(pos1, delta1)
+	local new_pos2 = vector.add(pos2, delta2)
+	if not minetest.is_valid_pos(new_pos1) or not minetest.is_valid_pos(new_pos2) then
+		return false, "Cannot select area outside of the map"
+	end
+	worldedit.pos1[name] = new_pos1
+	worldedit.pos2[name] = new_pos2
 
 	return true
 end
@@ -91,10 +96,16 @@ worldedit.marker_move = function(name, marker, deltavector)
 
 	if marker == 1 then
 		local pos = worldedit.pos1[name]
-		worldedit.pos1[name] = vector.add(deltavector, pos)
+		local new_pos = vector.add(deltavector, pos)
+		if minetest.is_valid_pos(new_pos) then
+			worldedit.pos1[name] = new_pos
+		end
 	else
 		local pos = worldedit.pos2[name]
-		worldedit.pos2[name] = vector.add(deltavector, pos)
+		local new_pos = vector.add(deltavector, pos)
+		if minetest.is_valid_pos(new_pos) then
+			worldedit.pos2[name] = new_pos
+		end
 	end
 
 	return true
