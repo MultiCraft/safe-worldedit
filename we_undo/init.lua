@@ -1025,6 +1025,10 @@ local function my_we_deserialize(pos_base, ...)
 		local current_node = minetest.get_node(entry)
 		local have_changes = 3
 		local def_ent = minetest.registered_nodes[entry.name]
+		if not def_ent then
+			entry = table.copy(entry)
+			entry.name = "air"
+		end
 		local def_cur = minetest.registered_nodes[current_node.name]
 		if current_node.name == entry.name then
 			current_node.name = nil
