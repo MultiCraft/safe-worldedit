@@ -59,6 +59,38 @@ function worldedit.keep_loaded(pos1, pos2)
 end
 
 
+local function block_copying_item(stack)
+	local def = stack:get_definition()
+	return def and def.block_copying
+end
+
+
+function worldedit.sanitize_meta(meta_tbl)
+	if meta_tbl.fields and meta_tbl.fields.item then
+		-- Item frames etc
+		local stack = ItemStack(meta_tbl.fields.item)
+		if block_copying_item(stack) then
+			meta_tbl.fields.item = nil
+		end
+	end
+
+	if not meta_tbl.inventory then return end
+
+	for _, inventory in pairs(meta_tbl.inventory) do
+		for _, stack in ipairs(inventory) do
+			-- The existence of to_string is checked elsewhere, I don't know
+			-- that it's needed but it won't hurt to do
+			if stack.to_string and block_copying_item(stack) then
+				-- We can't set inventory[i] to nil otherwise that would
+				-- interfere with future iteration (e.g. in
+				-- serialization.lua), so just empty the ItemStack.
+				stack:replace(nil)
+			end
+		end
+	end
+end
+
+
 local mh = {}
 worldedit.manip_helpers = mh
 

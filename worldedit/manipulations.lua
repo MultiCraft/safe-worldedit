@@ -165,7 +165,7 @@ end
 -- @param off
 -- @param meta_backwards (not officially part of API)
 -- @return The number of nodes copied.
-function worldedit.copy2(pos1, pos2, off, meta_backwards)
+function worldedit.copy2(pos1, pos2, off, meta_backwards, skip_meta_sanitize)
 	local pos1, pos2 = worldedit.sort_pos(pos1, pos2)
 
 	local src_manip, src_area = mh.init(pos1, pos2)
@@ -226,6 +226,9 @@ function worldedit.copy2(pos1, pos2, off, meta_backwards)
 				local pos = vector.new(pos1.x+x, pos1.y+y, pos1.z+z)
 				local meta = get_meta(pos):to_table()
 				pos = vector.add(pos, off)
+				if not skip_meta_sanitize then
+					worldedit.sanitize_meta(meta)
+				end
 				get_meta(pos):from_table(meta)
 			end
 		end
@@ -237,6 +240,9 @@ function worldedit.copy2(pos1, pos2, off, meta_backwards)
 				local pos = vector.new(pos1.x+x, pos1.y+y, pos1.z+z)
 				local meta = get_meta(pos):to_table()
 				pos = vector.add(pos, off)
+				if not skip_meta_sanitize then
+					worldedit.sanitize_meta(meta)
+				end
 				get_meta(pos):from_table(meta)
 			end
 		end
@@ -285,7 +291,7 @@ function worldedit.move(pos1, pos2, axis, amount)
 	-- Copy stuff to new location
 	local off = vector.new()
 	off[axis] = amount
-	worldedit.copy2(pos1, pos2, off, backwards)
+	worldedit.copy2(pos1, pos2, off, backwards, true)
 	-- Nuke old area
 	if not overlap then
 		nuke_area(vector.new(), dim)
@@ -375,6 +381,7 @@ function worldedit.stretch(pos1, pos2, stretch_x, stretch_y, stretch_z)
 			while pos.z >= pos1.z do
 				local node = get_node(pos) -- Get current node
 				local meta = get_meta(pos):to_table() -- Get meta of current node
+				worldedit.sanitize_meta(meta)
 
 				-- Calculate far corner of the big node
 				local pos_x = pos1.x + (pos.x - pos1.x) * stretch_x

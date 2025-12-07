@@ -81,6 +81,7 @@ function worldedit.serialize(pos1, pos2)
 					local meta
 					if has_meta[hash_node_position(pos)] then
 						meta = get_meta(pos):to_table()
+						worldedit.sanitize_meta(meta)
 
 						-- Convert metadata item stacks to item strings
 						for _, invlist in pairs(meta.inventory) do
