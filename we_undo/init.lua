@@ -1025,10 +1025,6 @@ local function my_we_deserialize(pos_base, ...)
 		local current_node = minetest.get_node(entry)
 		local have_changes = 3
 		local def_ent = minetest.registered_nodes[entry.name]
-		if not def_ent then
-			entry = table.copy(entry)
-			entry.name = "air"
-		end
 		local def_cur = minetest.registered_nodes[current_node.name]
 		if current_node.name == entry.name then
 			current_node.name = nil
@@ -1072,6 +1068,10 @@ local function my_we_deserialize(pos_base, ...)
 
 		-- set the original functions due to on_construct and on_destruct
 		minetest.add_node = add_node
+
+		if not minetest.registered_nodes[entry.name] then
+			entry = { name = "air", param1 = 0, param2 = 0 }
+		end
 
 		minetest.add_node(pos, entry)
 
