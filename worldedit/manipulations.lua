@@ -492,8 +492,8 @@ function worldedit.flip(pos1, pos2, axis)
 	local pos = vector.new(pos1.x, 0, 0)
 	local start = pos1[axis] + pos2[axis]
 	pos2[axis] = pos1[axis] + math.floor((pos2[axis] - pos1[axis]) / 2)
-	local get_node, get_meta, set_node = minetest.get_node,
-			minetest.get_meta, minetest.set_node
+	local get_node, get_meta, swap_node = minetest.get_node,
+			minetest.get_meta, minetest.swap_node
 	while pos.x <= pos2.x do
 		pos.y = pos1.y
 		while pos.y <= pos2.y do
@@ -505,10 +505,10 @@ function worldedit.flip(pos1, pos2, axis)
 				pos[axis] = start - value -- Shift position
 				local node2 = get_node(pos)
 				local meta2 = get_meta(pos):to_table()
-				set_node(pos, node1)
+				swap_node(pos, node1)
 				get_meta(pos):from_table(meta1)
 				pos[axis] = value -- Restore position
-				set_node(pos, node2)
+				swap_node(pos, node2)
 				get_meta(pos):from_table(meta2)
 				pos.z = pos.z + 1
 			end
