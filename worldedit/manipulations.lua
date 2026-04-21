@@ -3,6 +3,25 @@
 
 local mh = worldedit.manip_helpers
 
+local c_air = minetest.get_content_id("air")
+do
+	local c_ids, names
+	function worldedit._get_block_copying()
+		if not c_ids then
+			c_ids = {}
+			names = {}
+			for name, def in pairs(minetest.registered_nodes) do
+				if def.block_copying then
+					names[name] = true
+					c_ids[minetest.get_content_id(name)] = true
+				end
+			end
+		end
+		return c_ids, names
+	end
+end
+local get_block_copying = worldedit._get_block_copying
+
 
 --- Sets a region to `node_names`.
 -- @param pos1
@@ -180,7 +199,7 @@ function worldedit.copy2(pos1, pos2, off, meta_backwards, skip_meta_sanitize)
 	local dst_stride = vector.new(1, dst_area.ystride, dst_area.zstride)
 	local dst_offset = vector.subtract(dpos1, dst_area.MinEdge)
 
-	local function do_copy(src_data, dst_data)
+	local function do_copy(src_data, dst_data, block_copying)
 		for z = 0, dim.z-1 do
 			local src_index_z = (src_offset.z + z) * src_stride.z + 1 -- +1 for 1-based indexing
 			local dst_index_z = (dst_offset.z + z) * dst_stride.z + 1
@@ -191,7 +210,11 @@ function worldedit.copy2(pos1, pos2, off, meta_backwards, skip_meta_sanitize)
 				local src_index_x = src_index_y + src_offset.x
 				local dst_index_x = dst_index_y + dst_offset.x
 				for x = 0, dim.x-1 do
-					dst_data[dst_index_x + x] = src_data[src_index_x + x]
+					local cid = src_data[src_index_x + x]
+					if block_copying and block_copying[cid] then
+						cid = c_air
+					end
+					dst_data[dst_index_x + x] = cid
 				end
 			end
 		end
@@ -200,7 +223,7 @@ function worldedit.copy2(pos1, pos2, off, meta_backwards, skip_meta_sanitize)
 	-- Copy node data
 	local src_data = src_manip:get_data()
 	local dst_data = dst_manip:get_data()
-	do_copy(src_data, dst_data)
+	do_copy(src_data, dst_data, not skip_meta_sanitize and get_block_copying() or nil)
 	dst_manip:set_data(dst_data)
 
 	-- Copy param1
@@ -372,6 +395,7 @@ function worldedit.stretch(pos1, pos2, stretch_x, stretch_y, stretch_z)
 	}
 	worldedit.keep_loaded(pos1, new_pos2)
 
+	local _, block_copying_names = get_block_copying()
 	local pos = vector.new(pos2.x, 0, 0)
 	local big_pos = vector.new()
 	while pos.x >= pos1.x do
@@ -380,33 +404,35 @@ function worldedit.stretch(pos1, pos2, stretch_x, stretch_y, stretch_z)
 			pos.z = pos2.z
 			while pos.z >= pos1.z do
 				local node = get_node(pos) -- Get current node
-				local meta = get_meta(pos):to_table() -- Get meta of current node
-				worldedit.sanitize_meta(meta)
+				if not block_copying_names[node.name] then
+					local meta = get_meta(pos):to_table() -- Get meta of current node
+					worldedit.sanitize_meta(meta)
 
-				-- Calculate far corner of the big node
-				local pos_x = pos1.x + (pos.x - pos1.x) * stretch_x
-				local pos_y = pos1.y + (pos.y - pos1.y) * stretch_y
-				local pos_z = pos1.z + (pos.z - pos1.z) * stretch_z
+					-- Calculate far corner of the big node
+					local pos_x = pos1.x + (pos.x - pos1.x) * stretch_x
+					local pos_y = pos1.y + (pos.y - pos1.y) * stretch_y
+					local pos_z = pos1.z + (pos.z - pos1.z) * stretch_z
 
-				-- Create large node
-				placeholder_node.name = node.name
-				placeholder_node.param2 = node.param2
-				big_pos.x, big_pos.y, big_pos.z = pos_x, pos_y, pos_z
-				place_schematic(big_pos, schematic)
+					-- Create large node
+					placeholder_node.name = node.name
+					placeholder_node.param2 = node.param2
+					big_pos.x, big_pos.y, big_pos.z = pos_x, pos_y, pos_z
+					place_schematic(big_pos, schematic)
 
-				-- Fill in large node meta
-				if next(meta.fields) ~= nil or next(meta.inventory) ~= nil then
-					-- Node has meta fields
-					for x = 0, size_x do
-					for y = 0, size_y do
-					for z = 0, size_z do
-						big_pos.x = pos_x + x
-						big_pos.y = pos_y + y
-						big_pos.z = pos_z + z
-						-- Set metadata of new node
-						get_meta(big_pos):from_table(meta)
-					end
-					end
+					-- Fill in large node meta
+					if next(meta.fields) ~= nil or next(meta.inventory) ~= nil then
+						-- Node has meta fields
+						for x = 0, size_x do
+						for y = 0, size_y do
+						for z = 0, size_z do
+							big_pos.x = pos_x + x
+							big_pos.y = pos_y + y
+							big_pos.z = pos_z + z
+							-- Set metadata of new node
+							get_meta(big_pos):from_table(meta)
+						end
+						end
+						end
 					end
 				end
 				pos.z = pos.z - 1

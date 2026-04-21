@@ -4,6 +4,8 @@
 worldedit.LATEST_SERIALIZATION_VERSION = 5
 local LATEST_SERIALIZATION_HEADER = worldedit.LATEST_SERIALIZATION_VERSION .. ":"
 
+local get_block_copying = worldedit._get_block_copying
+
 
 --[[
 Serialization version history:
@@ -69,13 +71,15 @@ function worldedit.serialize(pos1, pos2)
 	local pos = vector.new(pos1.x, 0, 0)
 	local count = 0
 	local result = {}
+	local _, block_copying_names = get_block_copying()
 	while pos.x <= pos2.x do
 		pos.y = pos1.y
 		while pos.y <= pos2.y do
 			pos.z = pos1.z
 			while pos.z <= pos2.z do
 				local node = get_node(pos)
-				if node.name ~= "air" and node.name ~= "ignore" then
+				if node.name ~= "air" and node.name ~= "ignore" and
+						not block_copying_names[node.name] then
 					count = count + 1
 
 					local meta
