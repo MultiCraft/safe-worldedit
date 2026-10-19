@@ -199,6 +199,8 @@ function worldedit.copy2(pos1, pos2, off, meta_backwards, skip_meta_sanitize)
 	local dst_stride = vector.new(1, dst_area.ystride, dst_area.zstride)
 	local dst_offset = vector.subtract(dpos1, dst_area.MinEdge)
 
+	-- Destination indices of the nodes not copied, their meta isn't either
+	local blocked = {}
 	local function do_copy(src_data, dst_data, block_copying)
 		for z = 0, dim.z-1 do
 			local src_index_z = (src_offset.z + z) * src_stride.z + 1 -- +1 for 1-based indexing
@@ -213,6 +215,7 @@ function worldedit.copy2(pos1, pos2, off, meta_backwards, skip_meta_sanitize)
 					local cid = src_data[src_index_x + x]
 					if block_copying and block_copying[cid] then
 						cid = c_air
+						blocked[dst_index_x + x] = true
 					end
 					dst_data[dst_index_x + x] = cid
 				end
@@ -252,6 +255,9 @@ function worldedit.copy2(pos1, pos2, off, meta_backwards, skip_meta_sanitize)
 				if not skip_meta_sanitize then
 					worldedit.sanitize_meta(meta)
 				end
+				if blocked[dst_area:indexp(pos)] then
+					meta = {}
+				end
 				get_meta(pos):from_table(meta)
 			end
 		end
@@ -265,6 +271,9 @@ function worldedit.copy2(pos1, pos2, off, meta_backwards, skip_meta_sanitize)
 				pos = vector.add(pos, off)
 				if not skip_meta_sanitize then
 					worldedit.sanitize_meta(meta)
+				end
+				if blocked[dst_area:indexp(pos)] then
+					meta = {}
 				end
 				get_meta(pos):from_table(meta)
 			end
