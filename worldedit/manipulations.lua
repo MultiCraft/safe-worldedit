@@ -485,8 +485,8 @@ function worldedit.transpose(pos1, pos2, axis1, axis2)
 	worldedit.keep_loaded(pos1, upper_bound)
 
 	local pos = vector.new(pos1.x, 0, 0)
-	local get_node, get_meta, set_node = minetest.get_node,
-			minetest.get_meta, minetest.set_node
+	local get_node, get_meta, swap_node = minetest.get_node,
+			minetest.get_meta, minetest.swap_node
 	while pos.x <= pos2.x do
 		pos.y = pos1.y
 		while pos.y <= pos2.y do
@@ -500,10 +500,10 @@ function worldedit.transpose(pos1, pos2, axis1, axis2)
 					pos[axis1], pos[axis2] = pos1[axis1] + extent2, pos1[axis2] + extent1 -- Swap axis extents
 					local node2 = get_node(pos)
 					local meta2 = get_meta(pos):to_table()
-					set_node(pos, node1)
+					swap_node(pos, node1)
 					get_meta(pos):from_table(meta1)
 					pos[axis1], pos[axis2] = value1, value2 -- Restore position values
-					set_node(pos, node2)
+					swap_node(pos, node2)
 					get_meta(pos):from_table(meta2)
 				end
 				pos.z = pos.z + 1
