@@ -710,6 +710,7 @@ undo_funcs.nodes = function(name, data)
 		end
 	end
 
+	worldedit.clear_replaced_meta(manip, m_nodes)
 	manip:set_data(m_nodes)
 	manip:set_light_data(m_param1s)
 	manip:set_param2_data(m_param2s)
@@ -727,7 +728,18 @@ undo_funcs.nodes = function(name, data)
 		})
 		local metat, meta = get_meta_serializable(pos)
 		meta = meta or minetest.get_meta(pos)
-		meta:from_table(minetest.deserialize(metastrings[k]))
+		-- A node that drops its contents on destruct has dropped them already,
+		-- they must not come back, nor items that can't be copied
+		local restored = minetest.deserialize(metastrings[k])
+		if restored then
+			local _, block_copying_names = worldedit._get_block_copying()
+			if block_copying_names[minetest.get_node(pos).name] then
+				restored = nil
+			else
+				worldedit.sanitize_meta(restored)
+			end
+		end
+		meta:from_table(restored)
 		metastrings[k] = minetest.serialize(metat)
 	end
 
@@ -875,6 +887,7 @@ undo_funcs.nodeids = function(name, data)
 		mdata[vi] = nodeids[k]
 	end
 
+	worldedit.clear_replaced_meta(manip, mdata)
 	manip:set_data(mdata)
 	manip:write_to_map(true)
 

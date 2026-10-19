@@ -77,10 +77,15 @@ function worldedit.sanitize_meta(meta_tbl)
 	if not meta_tbl.inventory then return end
 
 	for _, inventory in pairs(meta_tbl.inventory) do
-		for _, stack in ipairs(inventory) do
+		for i, stack in ipairs(inventory) do
+			if type(stack) == "string" then
+				-- Loaded schematics hold item strings
+				if block_copying_item(ItemStack(stack)) then
+					inventory[i] = ""
+				end
 			-- The existence of to_string is checked elsewhere, I don't know
 			-- that it's needed but it won't hurt to do
-			if stack.to_string and block_copying_item(stack) then
+			elseif stack.to_string and block_copying_item(stack) then
 				-- We can't set inventory[i] to nil otherwise that would
 				-- interfere with future iteration (e.g. in
 				-- serialization.lua), so just empty the ItemStack.
@@ -145,9 +150,33 @@ function mh.init_axis_radius_length(base_pos, axis, radius, length)
 end
 
 
+--- Clears the meta of block_copying nodes that `data` replaces, otherwise it
+-- would stay under the new node and could be copied from there.
+-- Call before `manip:set_data(data)`.
+function worldedit.clear_replaced_meta(manip, data)
+	local _, names = worldedit._get_block_copying()
+	if not next(names) then
+		return
+	end
+
+	local emin, emax = manip:get_emerged_area()
+	local area = VoxelArea:new({MinEdge = emin, MaxEdge = emax})
+	local c_ignore = minetest.CONTENT_IGNORE
+	for _, pos in ipairs(minetest.find_nodes_with_meta(emin, emax)) do
+		local old_name = manip:get_node_at(pos).name
+		if names[old_name] then
+			local id = data[area:indexp(pos)]
+			if id ~= c_ignore and id ~= minetest.get_content_id(old_name) then
+				minetest.get_meta(pos):from_table(nil)
+			end
+		end
+	end
+end
+
 function mh.finish(manip, data)
 	-- Update map
 	if data ~= nil then
+		worldedit.clear_replaced_meta(manip, data)
 		manip:set_data(data)
 	end
 	manip:write_to_map(true)

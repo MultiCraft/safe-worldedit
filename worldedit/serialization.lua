@@ -257,12 +257,15 @@ function worldedit.deserialize(origin_pos, value)
 
 	local origin_x, origin_y, origin_z = origin_pos.x, origin_pos.y, origin_pos.z
 	local add_node, get_meta = minetest.add_node, minetest.get_meta
+	-- Files saved before a node or item blocked copying may still hold it
+	local _, block_copying_names = get_block_copying()
 	for i, entry in ipairs(nodes) do
-		if registered_nodes[entry.name] then
+		if registered_nodes[entry.name] and not block_copying_names[entry.name] then
 			entry.x, entry.y, entry.z = origin_x + entry.x, origin_y + entry.y, origin_z + entry.z
 			-- Entry acts as both position and node
 			add_node(entry, entry)
 			if entry.meta then
+				worldedit.sanitize_meta(entry.meta)
 				get_meta(entry):from_table(entry.meta)
 			end
 		end
